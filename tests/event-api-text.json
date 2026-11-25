@@ -1,0 +1,19 @@
+{
+  "resource": "/translate",
+  "path": "/translate",
+  "httpMethod": "POST",
+  "headers": {
+    "Content-Type": "application/json",
+    "Origin": "http://localhost:5500"
+  },
+  "queryStringParameters": null,
+  "requestContext": {
+    "resourceId": "abc123",
+    "stage": "dev",
+    "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+    "httpMethod": "POST",
+    "path": "/dev/translate"
+  },
+  "body": "{\"userId\": \"user-001\", \"requestId\": \"req-20261124-0001\", \"inputText\": \"Hello, how are you today?\\nThis is a test of the document translator.\", \"sourceLanguage\": \"auto\", \"targetLanguage\": \"vi\"}",
+  "isBase64Encoded": false
+}

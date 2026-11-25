@@ -1,0 +1,28 @@
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "ap-southeast-1",
+      "eventTime": "2026-11-24T05:00:00.000Z",
+      "eventName": "ObjectCreated:Put",
+      "userIdentity": { "principalId": "AWS:EXAMPLE" },
+      "requestParameters": { "sourceIPAddress": "203.0.113.10" },
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "configurationId": "translate-on-upload",
+        "bucket": {
+          "name": "document-translator-input-bucket",
+          "ownerIdentity": { "principalId": "EXAMPLE" },
+          "arn": "arn:aws:s3:::document-translator-input-bucket"
+        },
+        "object": {
+          "key": "uploads/user-001/req-20261124-0002/bao+cao+thang+11.docx",
+          "size": 20480,
+          "eTag": "0123456789abcdef0123456789abcdef",
+          "sequencer": "0A1B2C3D4E5F678901"
+        }
+      }
+    }
+  ]
+}
