@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AWS Document Translator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --c: #F08080;
+  --c-dark: #C85A5A;
+  --c-soft: #FDE9E9;
+  --c-bg: #FFF6F6;
+  --ink: #3A2A2A;
+  --muted: #8A7373;
+  --line: #F3D4D4;
+  --ok: #2E8B57;
+  --warn: #B7791F;
+  --err: #C0392B;
+  --card: #fff;
+}
+* { box-sizing: border-box; margin: 0; }
+html { font-size: 16px; }
+body {
+  font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--c-bg);
+  color: var(--ink);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+/* Header */
+.header { background: var(--c); color: #fff; }
+.header-in { display: flex; align-items: center; gap: 14px; padding-top: 22px; padding-bottom: 22px; }
+.header h1 { font-size: 1.4rem; font-weight: 700; }
+.header p { font-size: .9rem; opacity: .92; }
+.logo {
+  width: 46px; height: 46px; border-radius: 12px;
+  background: #fff; color: var(--c-dark);
+  display: grid; place-items: center; font-weight: 700; font-size: 1.05rem;
+}
+
+/* Stats */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0; }
+.stat {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 16px 20px; display: flex; flex-direction: column;
+}
+.stat strong { font-size: 1.9rem; color: var(--c-dark); font-weight: 700; line-height: 1.2; }
+.stat span { color: var(--muted); font-size: .9rem; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin-bottom: 22px; overflow-x: auto; }
+.tab {
+  background: none; border: 0; padding: 12px 20px; font: inherit; font-weight: 500;
+  color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent;
+  margin-bottom: -2px; white-space: nowrap;
+}
+.tab:hover { color: var(--c-dark); }
+.tab.active { color: var(--c-dark); border-bottom-color: var(--c); font-weight: 600; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Language bar */
+.lang-bar { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.lang-bar label { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); gap: 4px; }
+.lang-select {
+  font: inherit; color: var(--ink); padding: 9px 12px; min-width: 190px;
+  border: 1px solid var(--line); border-radius: 10px; background: #fff;
+}
+.icon-btn, .arrow {
+  width: 40px; height: 40px; display: grid; place-items: center; font-size: 1.1rem; color: var(--c-dark);
+}
+.icon-btn { border: 1px solid var(--line); background: #fff; border-radius: 10px; cursor: pointer; }
+.icon-btn:hover { background: var(--c-soft); }
+
+/* Text boxes */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; display: flex; flex-direction: column; }
+.box.out { background: #FFFBFB; }
+.box-head, .box-foot { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; font-size: .88rem; color: var(--muted); }
+.box-head { border-bottom: 1px solid var(--line); font-weight: 600; color: var(--ink); }
+.box-foot { border-top: 1px solid var(--line); min-height: 42px; }
+.actions { display: flex; gap: 14px; }
+textarea, .result {
+  flex: 1; min-height: 240px; padding: 14px 16px; font: inherit; border: 0; resize: vertical;
+  background: transparent; color: var(--ink); outline: none; white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.result.placeholder { color: #BBA6A6; }
+.link-btn { background: none; border: 0; font: inherit; font-size: .88rem; color: var(--c-dark); cursor: pointer; padding: 2px 0; font-weight: 500; }
+.link-btn:hover:not(:disabled) { text-decoration: underline; }
+.link-btn:disabled { color: #CDB9B9; cursor: not-allowed; }
+
+/* Buttons */
+.btn {
+  background: var(--c); color: #fff; border: 0; border-radius: 10px; padding: 12px 26px;
+  font: inherit; font-weight: 600; cursor: pointer;
+}
+.btn:hover:not(:disabled) { background: var(--c-dark); }
+.btn:disabled { background: #F5C6C6; cursor: not-allowed; }
+:focus-visible { outline: 3px solid #8E3B3B; outline-offset: 2px; }
+
+/* Dropzone */
+.drop {
+  border: 2px dashed var(--c); border-radius: 14px; background: #fff; text-align: center;
+  padding: 38px 20px; cursor: pointer; transition: background .15s;
+}
+.drop:hover, .drop.over { background: var(--c-soft); }
+.drop-title { font-weight: 600; }
+.drop u { color: var(--c-dark); }
+.hint { color: var(--muted); font-size: .87rem; margin-top: 4px; }
+.file-info {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  margin-top: 12px; padding: 12px 16px; background: var(--c-soft); border-radius: 10px;
+}
+.file-info span { color: var(--muted); font-size: .88rem; margin-left: 10px; }
+.error { color: var(--err); font-size: .9rem; min-height: 1.4em; margin: 8px 0; }
+.sub { font-size: 1.1rem; margin: 28px 0 12px; }
+
+/* Queue */
+.queue { list-style: none; padding: 0; display: grid; gap: 10px; }
+.queue li {
+  background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: center;
+}
+.queue li.empty { display: block; color: var(--muted); text-align: center; }
+.q-name { font-weight: 600; overflow-wrap: anywhere; }
+.q-meta { color: var(--muted); font-size: .84rem; grid-column: 1; }
+.q-side { grid-row: 1 / span 2; grid-column: 2; display: flex; align-items: center; gap: 12px; }
+.bar { grid-column: 1 / -1; height: 8px; background: var(--c-soft); border-radius: 99px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--c); transition: width .3s; }
+.dl {
+  background: #fff; color: var(--c-dark); border: 1px solid var(--c); border-radius: 8px;
+  padding: 6px 14px; font: inherit; font-size: .88rem; font-weight: 600; cursor: pointer;
+}
+.dl:hover { background: var(--c-soft); }
+
+/* Badge */
+.badge { font-size: .8rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; white-space: nowrap; }
+.badge.done { background: #E3F4EA; color: var(--ok); }
+.badge.run { background: #FFF1D6; color: var(--warn); }
+.badge.wait { background: #EEE8E8; color: var(--muted); }
+.badge.fail { background: #FBE3E0; color: var(--err); }
+
+/* History table */
+.table-wrap { background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td:nth-child(3) { white-space: normal; max-width: 300px; overflow-wrap: anywhere; }
+th { background: var(--c-soft); color: var(--c-dark); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+
+.foot { text-align: center; color: var(--muted); font-size: .85rem; padding: 36px 20px; }
+.toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0;
+  background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 10px;
+  transition: .25s; pointer-events: none; font-size: .9rem;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 720px) {
+  .cols, .stats { grid-template-columns: 1fr; }
+  .lang-select { min-width: 140px; }
+  .queue li { grid-template-columns: 1fr; }
+  .q-side { grid-row: auto; grid-column: 1; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+[hidden] { display: none !important; }
+
+</style>
+</head>
+<body>
+  <header class="header">
+    <div class="wrap header-in">
+      <span class="logo" aria-hidden="true">文A</span>
+      <div>
+        <h1>AWS Document Translator</h1>
+        <p>Dịch văn bản và tài liệu với Amazon Translate</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Thống kê -->
+    <section class="stats" aria-label="Thống kê">
+      <div class="stat"><strong id="statWords">0</strong><span>Từ đã dịch</span></div>
+      <div class="stat"><strong id="statDocs">0</strong><span>Tài liệu đã dịch</span></div>
+    </section>
+
+    <!-- 3 tab -->
+    <nav class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="text">Dịch văn bản</button>
+      <button class="tab" role="tab" data-tab="document">Dịch tài liệu</button>
+      <button class="tab" role="tab" data-tab="history">Lịch sử dịch</button>
+    </nav>
+
+    <!-- TAB: Dịch văn bản -->
+    <section class="panel active" id="panel-text" data-panel="text">
+      <div class="lang-bar">
+        <label>Ngôn ngữ nguồn
+          <select id="textSrc" class="lang-select"></select>
+        </label>
+        <button class="icon-btn" id="swapLang" title="Đổi ngôn ngữ" aria-label="Đổi ngôn ngữ">⇄</button>
+        <label>Ngôn ngữ đích
+          <select id="textTgt" class="lang-select"></select>
+        </label>
+      </div>
+
+      <div class="cols">
+        <div class="box">
+          <div class="box-head">
+            <span>Văn bản gốc</span>
+            <div class="actions">
+              <button class="link-btn" id="pasteBtn">Dán</button>
+              <button class="link-btn" id="clearBtn">Xóa tất cả</button>
+            </div>
+          </div>
+          <textarea id="srcText" maxlength="5000" placeholder="Nhập hoặc dán văn bản cần dịch..."></textarea>
+          <div class="box-foot"><span id="charCount">0 / 5000 ký tự</span></div>
+        </div>
+
+        <div class="box out">
+          <div class="box-head">
+            <span>Bản dịch</span>
+            <div class="actions"><button class="link-btn" id="copyBtn" disabled>Sao chép</button></div>
+          </div>
+          <div id="result" class="result placeholder">Bản dịch sẽ hiển thị ở đây.</div>
+          <div class="box-foot"><span id="textStatus"></span></div>
+        </div>
+      </div>
+      <button class="btn" id="translateTextBtn">Dịch văn bản</button>
+    </section>
+
+    <!-- TAB: Dịch tài liệu -->
+    <section class="panel" id="panel-document" data-panel="document">
+      <div class="lang-bar">
+        <label>Ngôn ngữ nguồn
+          <select id="docSrc" class="lang-select"></select>
+        </label>
+        <span class="arrow" aria-hidden="true">→</span>
+        <label>Ngôn ngữ đích
+          <select id="docTgt" class="lang-select"></select>
+        </label>
+      </div>
+
+      <div class="drop" id="dropZone" tabindex="0" role="button" aria-label="Chọn hoặc kéo thả tệp">
+        <input type="file" id="fileInput" accept=".txt,.html,.docx,.pptx,.xlsx" hidden>
+        <p class="drop-title">Kéo thả tệp vào đây hoặc <u>chọn từ máy</u></p>
+        <p class="hint">Hỗ trợ .txt, .html, .docx, .pptx, .xlsx — tối đa 10 MB</p>
+      </div>
+
+      <div class="file-info" id="fileInfo" hidden>
+        <div>
+          <strong id="fileName"></strong>
+          <span id="fileSize"></span>
+        </div>
+        <button class="link-btn" id="removeFile">Bỏ chọn</button>
+      </div>
+      <p class="error" id="fileError" role="alert"></p>
+
+      <button class="btn" id="uploadBtn" disabled>Tải lên và dịch</button>
+
+      <h2 class="sub">Danh sách tài liệu</h2>
+      <ul class="queue" id="queue">
+        <li class="empty">Chưa có tài liệu nào. Chọn tệp để bắt đầu dịch.</li>
+      </ul>
+    </section>
+
+    <!-- TAB: Lịch sử -->
+    <section class="panel" id="panel-history" data-panel="history">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Thời gian</th><th>Loại</th><th>Nội dung</th><th>Ngôn ngữ</th><th>Trạng thái</th><th></th></tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot wrap">AWS Document Translator · Giao diện mẫu</footer>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+"use strict";
+
+/* ===== Cấu hình ===== */
+const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const ALLOWED = ["txt", "html", "docx", "pptx", "xlsx"];
+const LANGS = {
+  auto: "Tự động nhận diện", vi: "Tiếng Việt", en: "Tiếng Anh", ja: "Tiếng Nhật",
+  ko: "Tiếng Hàn", zh: "Tiếng Trung", fr: "Tiếng Pháp", de: "Tiếng Đức", es: "Tiếng Tây Ban Nha"
+};
+const STATUS = {
+  done: ["Hoàn tất", "done"], run: ["Đang dịch", "run"],
+  wait: ["Chờ dịch", "wait"], fail: ["Lỗi", "fail"]
+};
+
+/* ===== Dữ liệu mẫu lịch sử ===== */
+const history = [
+  { time: "15/11/2026 09:12", type: "Tài liệu", name: "bao-cao-quy-3.docx", src: "vi", tgt: "en", words: 4820, status: "done" },
+  { time: "14/11/2026 16:40", type: "Văn bản", name: "Xin chào, tôi muốn đặt phòng cho hai người...", src: "vi", tgt: "ja", words: 36, status: "done" },
+  { time: "14/11/2026 10:05", type: "Tài liệu", name: "user-guide.pptx", src: "en", tgt: "vi", words: 2310, status: "done" },
+  { time: "12/11/2026 21:30", type: "Tài liệu", name: "hop-dong.html", src: "vi", tgt: "fr", words: 1500, status: "fail" },
+  { time: "10/11/2026 08:15", type: "Văn bản", name: "Thank you for your quick response...", src: "en", tgt: "vi", words: 52, status: "done" }
+];
+
+/* ===== Tiện ích ===== */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+const countWords = (t) => (t.trim() ? t.trim().split(/\s+/).length : 0);
+const fmtNum = (n) => n.toLocaleString("vi-VN");
+const fmtSize = (b) => (b < 1024 ? b + " B" : b < 1048576 ? (b / 1024).toFixed(1) + " KB" : (b / 1048576).toFixed(2) + " MB");
+const nowStr = () => new Date().toLocaleString("vi-VN", { hour12: false, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let toastTimer;
+function toast(msg) {
+  const el = $("#toast");
+  el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+function download(filename, content) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
+  a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ===== Thống kê ===== */
+function renderStats() {
+  const ok = history.filter((h) => h.status === "done");
+  $("#statWords").textContent = fmtNum(ok.reduce((s, h) => s + h.words, 0));
+  $("#statDocs").textContent = fmtNum(ok.filter((h) => h.type === "Tài liệu").length);
+}
+
+/* ===== Tabs (data-tab) ===== */
+$$(".tab").forEach((btn) => btn.addEventListener("click", () => {
+  const name = btn.dataset.tab;
+  $$(".tab").forEach((t) => t.classList.toggle("active", t === btn));
+  $$(".panel").forEach((p) => p.classList.toggle("active", p.dataset.panel === name));
+}));
+
+/* ===== Ngôn ngữ ===== */
+function fillLang(sel, withAuto, value) {
+  sel.innerHTML = Object.entries(LANGS)
+    .filter(([k]) => withAuto || k !== "auto")
+    .map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+  sel.value = value;
+}
+fillLang($("#textSrc"), true, "auto");
+fillLang($("#textTgt"), false, "en");
+fillLang($("#docSrc"), true, "auto");
+fillLang($("#docTgt"), false, "en");
+
+$("#swapLang").addEventListener("click", () => {
+  const s = $("#textSrc"), t = $("#textTgt");
+  if (s.value === "auto") return toast("Chọn ngôn ngữ nguồn cụ thể để đổi chiều");
+  [s.value, t.value] = [t.value, s.value];
+});
+
+/* ===== Dịch văn bản ===== */
+const src = $("#srcText"), result = $("#result");
+
+src.addEventListener("input", () => {
+  $("#charCount").textContent = `${src.value.length} / 5000 ký tự`;
+});
+$("#clearBtn").addEventListener("click", () => {
+  src.value = ""; src.dispatchEvent(new Event("input"));
+  result.textContent = "Bản dịch sẽ hiển thị ở đây.";
+  result.classList.add("placeholder");
+  $("#copyBtn").disabled = true; $("#textStatus").textContent = "";
+  src.focus();
+});
+$("#pasteBtn").addEventListener("click", async () => {
+  try {
+    const t = await navigator.clipboard.readText();
+    src.value = (src.value + t).slice(0, 5000);
+    src.dispatchEvent(new Event("input"));
+  } catch { toast("Không thể đọc bộ nhớ tạm. Hãy dán bằng Ctrl+V."); }
+});
+$("#copyBtn").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(result.textContent); toast("Đã sao chép bản dịch"); }
+  catch { toast("Không thể sao chép. Hãy bôi đen và sao chép thủ công."); }
+});
+
+$("#translateTextBtn").addEventListener("click", () => {
+  const text = src.value.trim();
+  const sl = $("#textSrc").value, tl = $("#textTgt").value;
+  if (!text) return toast("Hãy nhập văn bản cần dịch");
+  if (sl === tl) return toast("Ngôn ngữ nguồn và đích đang trùng nhau");
+  const btn = $("#translateTextBtn");
+  btn.disabled = true; $("#textStatus").textContent = "Đang dịch...";
+  // TODO: gọi API thật (API Gateway → Lambda → Amazon Translate), ví dụ:
+  // const res = await fetch(API_URL + "/translate-text", { method: "POST", body: JSON.stringify({ text, sl, tl }) });
+  setTimeout(() => {
+    const out = `[${LANGS[tl]}] ${text}`; // kết quả giả lập
+    result.textContent = out; result.classList.remove("placeholder");
+    $("#copyBtn").disabled = false; $("#textStatus").textContent = "Dịch xong";
+    btn.disabled = false;
+    history.unshift({ time: nowStr(), type: "Văn bản", name: text.slice(0, 60) + (text.length > 60 ? "..." : ""), src: sl, tgt: tl, words: countWords(text), status: "done" });
+    renderStats(); renderHistory();
+  }, 900);
+});
+
+/* ===== Dịch tài liệu ===== */
+let file = null;
+const drop = $("#dropZone"), input = $("#fileInput");
+
+drop.addEventListener("click", () => input.click());
+drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (e) => pick(e.dataTransfer.files[0]));
+input.addEventListener("change", () => pick(input.files[0]));
+$("#removeFile").addEventListener("click", resetFile);
+
+function pick(f) {
+  if (!f) return;
+  const ext = f.name.split(".").pop().toLowerCase();
+  if (!ALLOWED.includes(ext)) return reject(`Định dạng .${ext} chưa được hỗ trợ. Hãy chọn ${ALLOWED.map((e) => "." + e).join(", ")}.`);
+  if (f.size > MAX_SIZE) return reject(`Tệp nặng ${fmtSize(f.size)}, vượt giới hạn 10 MB.`);
+  if (f.size === 0) return reject("Tệp rỗng. Hãy chọn tệp có nội dung.");
+  file = f;
+  $("#fileError").textContent = "";
+  $("#fileName").textContent = f.name;
+  $("#fileSize").textContent = fmtSize(f.size);
+  $("#fileInfo").hidden = false;
+  $("#uploadBtn").disabled = false;
+}
+function reject(msg) { resetFile(); $("#fileError").textContent = msg; }
+function resetFile() {
+  file = null; input.value = "";
+  $("#fileInfo").hidden = true; $("#uploadBtn").disabled = true; $("#fileError").textContent = "";
+}
+
+const queue = [];
+$("#uploadBtn").addEventListener("click", () => {
+  const sl = $("#docSrc").value, tl = $("#docTgt").value;
+  if (sl === tl) return ($("#fileError").textContent = "Ngôn ngữ nguồn và đích đang trùng nhau.");
+  const job = { id: Date.now(), name: file.name, size: file.size, src: sl, tgt: tl, progress: 0, status: "wait" };
+  queue.unshift(job); resetFile(); renderQueue();
+  runJob(job);
+});
+
+function runJob(job) {
+  // TODO: upload lên S3 (presigned URL) và poll trạng thái job từ API.
+  job.status = "run";
+  const timer = setInterval(() => {
+    job.progress = Math.min(100, job.progress + Math.round(8 + Math.random() * 14));
+    if (job.progress >= 100) {
+      clearInterval(timer);
+      job.status = "done";
+      history.unshift({ time: nowStr(), type: "Tài liệu", name: job.name, src: job.src, tgt: job.tgt, words: Math.round(job.size / 6), status: "done" });
+      renderStats(); renderHistory(); toast(`Đã dịch xong ${job.name}`);
+    }
+    renderQueue();
+  }, 600);
+  renderQueue();
+}
+
+function renderQueue() {
+  const ul = $("#queue");
+  if (!queue.length) return;
+  ul.innerHTML = queue.map((j) => {
+    const [label, cls] = STATUS[j.status];
+    const action = j.status === "done" ? `<button class="dl" data-dl="${j.id}">Tải bản dịch</button>` : "";
+    const bar = j.status === "run" ? `<div class="bar"><i style="width:${j.progress}%"></i></div>` : "";
+    return `<li>
+      <span class="q-name">${esc(j.name)}</span>
+      <div class="q-side"><span class="badge ${cls}">${label}${j.status === "run" ? " " + j.progress + "%" : ""}</span>${action}</div>
+      <span class="q-meta">${fmtSize(j.size)} · ${LANGS[j.src]} → ${LANGS[j.tgt]}</span>${bar}
+    </li>`;
+  }).join("");
+}
+$("#queue").addEventListener("click", (e) => {
+  const id = e.target.dataset.dl; if (!id) return;
+  const j = queue.find((q) => String(q.id) === id);
+  download(`translated-${j.name}.txt`, `Bản dịch giả lập của ${j.name} (${LANGS[j.tgt]})`);
+});
+
+/* ===== Lịch sử ===== */
+function renderHistory() {
+  $("#historyBody").innerHTML = history.map((h, i) => {
+    const [label, cls] = STATUS[h.status];
+    const action = h.status === "done" ? `<button class="dl" data-h="${i}">Tải xuống</button>` : "";
+    return `<tr><td>${h.time}</td><td>${h.type}</td><td>${esc(h.name)}</td>
+      <td>${LANGS[h.src]} → ${LANGS[h.tgt]}</td><td><span class="badge ${cls}">${label}</span></td><td>${action}</td></tr>`;
+  }).join("");
+}
+$("#historyBody").addEventListener("click", (e) => {
+  const i = e.target.dataset.h; if (i === undefined) return;
+  const h = history[i];
+  download(`translated-${h.type === "Tài liệu" ? h.name : "van-ban"}.txt`, `Bản dịch giả lập (${LANGS[h.tgt]}): ${h.name}`);
+});
+
+renderStats();
+renderHistory();
+
+</script>
+</body>
+</html>
